@@ -1,0 +1,44 @@
+%----------------------------------------------------------------------------------------
+%	ARTICLE INFORMATION
+%----------------------------------------------------------------------------------------
+
+\articletitle{A Search Engine Backed by Internet-Wide Scanning} % The title of the article
+\articlecitation{\cite{censys15}} % The BibTeX citation key from your bibliography
+
+\datenotesstarted{November 03, 2018} % The date when these notes were first made
+\docdate{\datenotesstarted; rev. \today} % The date when the notes were lasted updated (automatically the current date)
+
+\docauthor{Jordan Myers} % Your name
+
+%----------------------------------------------------------------------------------------
+
+\pagestyle{myheadings} % Use custom headers
+%\markright{\doctitle} % Place the article information into the header
+
+%----------------------------------------------------------------------------------------
+%	PRINT ARTICLE INFORMATION
+%----------------------------------------------------------------------------------------
+
+\thispagestyle{plain} % Plain formatting on the first page
+
+\printtitle % Print the title
+
+%----------------------------------------------------------------------------------------
+%	ARTICLE NOTES
+%----------------------------------------------------------------------------------------
+
+\section*{Notes} % Unnumbered section
+\begin{itemize}
+	\item Continually scans the internet.
+	\item Produces structured data about hosts and protocols by dissecting handshakes.
+	\item Raw handshake data saved.
+	\item Data is then further processed - validated and annotated with metadata, e.g. device model, software version.
+	\item Data is collected by protocol, but grouped by host.
+	\item Zmap performs host discovery; hosts seed application scanners (ZGrab) which produce structured JSON.
+	\item ZTag takes ZGrab JSON output, transforms data and adds annotations, and produces JSON doc.
+	\item MongoDB 2.6.7 and Apache Cassandra 2.1.2 NoSQL DBs were initially considered but were too slow, particularly when handling unchanged records.
+	\item ZDb, a custom DB was developed. A wrapper for RocksDB with optimizations to avoid disk access when there are no changes to data. The GitHub repo for ZDb is now deprecated.
+	\item Elasticsearch is used for search and reporting. \cite{Elasticsearch}
+	\item A Google Cloud Datastore collection is used to store history for each host
+\end{itemize}
+
