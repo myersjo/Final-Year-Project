@@ -41,5 +41,13 @@ curl -X GET "localhost:9200/records-fresh/_search?pretty" -H 'Content-Type: appl
 }
 '
 
+curl -X POST "localhost:9200/records-fresh/_doc?pretty" -H 'Content-Type: application/json' -d @
+
+curl -X PUT "localhost:9200/records-fresh/_settings" -H 'Content-Type: application/json' -d'
+{
+  "index.mapping.total_fields.limit": 3000
+}
+'
+
 #less records.fresh | json_pp | less
 #less records.fresh | grep "82.141.246.117" | json_pp > /home/jordan/data/sample-records-c1-1.json
