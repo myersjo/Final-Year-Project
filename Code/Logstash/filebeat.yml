@@ -1,0 +1,10 @@
+filebeat.inputs:
+- type: log
+  paths:
+    - /home/jordan/data/smtp/runs/*/*.fresh
+  json:
+  - keys_under_root: false
+  - add_error_key: true
+
+output.logstash:
+  hosts: ["localhost:5044"]
