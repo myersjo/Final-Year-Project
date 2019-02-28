@@ -1,4 +1,4 @@
-#!/usr/bin/python
+	#!/usr/bin/python
 
 # Read a file of JSON data and insert data into elasticsearch
 
@@ -40,5 +40,5 @@ def genLoadJson():
             }
 
 print(datetime.datetime.utcnow())
-bulk(es, genLoadJson(), chunk_size=10, request_timeout=30, max_chunk_bytes=5000000, max_retries=3, raise_on_error=False, raise_on_exception=False)
+bulk(es, genLoadJson(), chunk_size=10, request_timeout=30, max_chunk_bytes=5000000, max_retries=0, raise_on_error=False, raise_on_exception=False)
 print(datetime.datetime.utcnow())
