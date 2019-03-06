@@ -43,11 +43,34 @@ curl -X GET "localhost:9200/records-fresh/_search?pretty" -H 'Content-Type: appl
 
 curl -X POST "localhost:9200/records-fresh/_doc?pretty" -H 'Content-Type: application/json' -d @
 
-curl -X PUT "localhost:9200/records-fresh/_settings" -H 'Content-Type: application/json' -d'
+curl -X PUT "localhost:9200/records-fresh-v2.3/_settings" -H 'Content-Type: application/json' -d'
 {
-  "index.mapping.total_fields.limit": 3000
+  "index.mapping.total_fields.limit": 5000
 }
 '
+
+curl -X GET "localhost:9200/logstash-2019.02.14/_search" -H 'Content-Type: application/json' -d'
+{
+  "query": { "match_all": {} }, "_source": false
+}
+'
+
+curl -X PUT "localhost:9200/records-fresh-v2.3?pretty" -H 'Content-Type: application/json' -d'
+{
+	"settings": {
+		"number_of_shards": 1,
+		"index.mapping.total_fields.limit": 5000
+  }
+}
+'
+
+curl -X GET "localhost:9200/_cat/thread_pool"
+curl -X DELETE "localhost:9200/records-fresh-v2.3?pretty"
+
+curl -X DELETE "localhost:9200/records-fresh-v1.1?pretty"
+curl -X DELETE "localhost:9200/records-fresh-v1.3?pretty"
+curl -X DELETE "localhost:9200/records-fresh-v1.4?pretty"
+curl -X DELETE "localhost:9200/records-fresh-v2.1?pretty"
 
 #less records.fresh | json_pp | less
 #less records.fresh | grep "82.141.246.117" | json_pp > /home/jordan/data/sample-records-c1-1.json
