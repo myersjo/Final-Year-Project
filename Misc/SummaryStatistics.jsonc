@@ -1,0 +1,56 @@
+// Count of records with browser trusted certificates
+{
+  "size" : 0,
+  "query" : {
+    "term" : {
+      "doc.p443.data.http.response.request.tls_handshake.server_certificates.validation.browser_trusted" : {
+        "value" : true,
+        "boost" : 1.0
+      }
+    }
+  },
+  "_source" : false,
+  "stored_fields" : "_none_",
+  "aggregations" : {
+    "groupby" : {
+      "composite" : {
+        "size" : 1000,
+        "sources" : [
+          {
+            "36574" : {
+              "terms" : {
+                "field" : "doc.run_date",
+                "missing_bucket" : true,
+                "order" : "asc"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+// Count of P443 cipher suite for specific run
+{
+  "size" : 0,
+  "_source" : false,
+  "stored_fields" : "_none_",
+  "aggregations" : {
+    "groupby" : {
+      "composite" : {
+        "size" : 1000,
+        "sources" : [
+          {
+            "102831" : {
+              "terms" : {
+                "field" : "doc.p443.data.http.response.request.tls_handshake.server_hello.cipher_suite.name.keyword",
+                "missing_bucket" : true,
+                "order" : "asc"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
