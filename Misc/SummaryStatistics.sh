@@ -5,6 +5,32 @@ curl -X POST "localhost:9200/_xpack/sql?format=txt&pretty" -H 'Content-Type: app
 }
 '
 
+curl -X POST "localhost:9200/records-fresh-ie-*/_search?pretty" -H 'Content-Type: application/json' -d'
+{
+  "size" : 0,
+  "_source" : false,
+  "stored_fields" : "_none_",
+  "aggregations" : {
+    "groupby" : {
+      "composite" : {
+        "size" : 1000,
+        "sources" : [
+          {
+            "166669" : {
+              "terms" : {
+                "field" : "doc.run_date",
+                "missing_bucket" : true,
+                "order" : "asc"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+'
+
 # Count of records with browser trusted certificates
 curl -X POST "localhost:9200/_xpack/sql?format=txt&pretty" -H 'Content-Type: application/json' -d'
 {
