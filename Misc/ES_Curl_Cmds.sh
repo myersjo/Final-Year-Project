@@ -55,7 +55,7 @@ curl -X GET "localhost:9200/logstash-2019.02.14/_search" -H 'Content-Type: appli
 }
 '
 
-curl -X PUT "localhost:9200/records-fresh-ie-20180316?pretty" -H 'Content-Type: application/json' -d'
+curl -X PUT "localhost:9200/av-records-fresh-noip-ie-20171130?pretty" -H 'Content-Type: application/json' -d'
 {
     "settings" : {
         "index" : {
@@ -135,3 +135,16 @@ curl -X POST "localhost:9200/_xpack/sql/translate?format=txt&pretty" -H 'Content
     "query": "SELECT doc.p443.data.http.response.request.tls_handshake.server_hello.cipher_suite.name as CipherSuite, COUNT(*) as Count FROM \"records-fresh-ie-2019*\" GROUP BY doc.p443.data.http.response.request.tls_handshake.server_hello.cipher_suite.name"
 }
 '
+
+# Get all matching indices (records-fresh-ie*) in ascending order
+curl -X GET "localhost:9200/_cat/indices/records-fresh-ie*?v&h=index&s=index:desc&format=json&pretty"
+
+
+curl -X PUT "localhost:9200/_cluster/settings" -H 'Content-Type: application/json' -d'
+{
+    "action.destructive_requires_name": "true"
+}
+'
+
+curl -X DELETE "localhost:9200/.monitoring*"
+
