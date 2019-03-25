@@ -1,13 +1,22 @@
-	#!/usr/bin/python
+#!/usr/bin/python
 
 # Read a file of JSON data and insert data into elasticsearch
+
+# python Final-Year-Project/Code/Elasticsearch/BulkInsert.py -i av-noip-2018-records.fresh --index av-records-fresh-geo-ie-20180316 -rd 2018-03-16 --cc IE
 
 import argparse
 import json
 import time,datetime
-import subprocess
+import subprocess, os, sys
 from elasticsearch import Elasticsearch # install via  "$ sudo pip install elasticsearch"
 from elasticsearch.helpers import bulk
+
+# from https://github.com/sftcd/surveys ...
+# locally in $HOME/code/surveys
+def_surveydir=os.environ['HOME']+'/code/surveys'
+sys.path.insert(0,def_surveydir)
+
+from SurveyFuncs import *
 
 # default value
 infile="records.fresh"
@@ -43,6 +52,7 @@ if args.country_code is not None:
     country_code=args.country_code
 
 es = Elasticsearch()
+mm_setup()
 
 def genLoadJson():
     lines_read=0
@@ -55,12 +65,22 @@ def genLoadJson():
                 time.sleep(20)
             if lines_read % 100 == 0:
                 print("[{}] {} lines read".format(datetime.datetime.now(), lines_read))
-                time.sleep(2)
+                time.sleep(1)
             j_content = json.loads(line)
-            j_content['run_date']=run_date
-            j_content['country_code']=country_code
+            ip = j_content['ip']
+            geoinfo = mm_info(ip)
+            j_content['country_code']=geoinfo['cc']
+            # j_content['country_code']=country_code
+            j_content['run_date']=run_date.strftime('%Y-%m-%d')
+            geolocation = { "location": { "lat": geoinfo['lat'], "lon": geoinfo['long']}}
+            # j_content['geoip']['location']['lat']=geoinfo['lat']
+            # j_content['geoip']['location']['lon']=geoinfo['lon']
+            j_content['geoip']=geolocation
+            j_content['asn']=geoinfo['asn']
+            j_content['asndec']=geoinfo['asndec']
+
             lines_read += 1
-            time.sleep(1)
+            time.sleep(0.5)
             yield {
                 "_index": es_index,
                 "_type": "document",

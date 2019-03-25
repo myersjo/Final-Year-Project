@@ -1,0 +1,39 @@
+// curl -X PUT "localhost:9200/_template/default_template" -H 'Content-Type: application/json' -d'
+{
+  "index_patterns": ["*records-fresh*"],
+  "order": 100,
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "index.mapping.total_fields.limit": 5000
+  },
+  "mappings": {
+    "document": {
+      "_source": {
+        "enabled": true
+      },
+      "properties": {
+        "doc": {
+          "properties": {
+            "ip": {
+              "type": "ip"
+            },
+            "geoip": {
+              "properties": {
+                "location": {
+                  "type": "geo_point"
+                }
+              }
+            },
+            "run_date": {
+              "type": "date",
+              "format": "yyyy-MM-dd"
+            }
+          }
+        }
+      }
+    }
+  },
+  "version": 1
+}
+'
