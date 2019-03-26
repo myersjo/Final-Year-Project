@@ -1,0 +1,8 @@
+.es(index=records-fresh-ie*, offset='-1M').label('Total Servers'),
+.es(index=records-fresh-ie*, offset='-1M', metric=sum:p110_exists).label('Servers Listening on P110 (POP3)'),
+.es(index=records-fresh-ie*, offset='-1M', metric=sum:p143_exists).label('Servers Listening on P143 (IMAP)'),
+.es(index=records-fresh-ie*, offset='-1M', metric=sum:p22_exists).label('Servers Listening on P22 (SSH)'),
+.es(index=records-fresh-ie*, offset='-1M', metric=sum:p25_exists).label('Servers Listening on P25 (SMTP)'),
+.es(index=records-fresh-ie*, offset='-1M', metric=sum:p443_exists).label('Servers Listening on P443 (HTTPS)'),
+.es(index=records-fresh-ie*, offset='-1M', metric=sum:p587_exists).label('Servers Listening on P587 (SMTP)'),
+.es(index=records-fresh-ie*, offset='-1M', metric=sum:p993_exists).label('Servers Listening on P993 (IMAPS)')
