@@ -18,7 +18,7 @@ sys.path.insert(0,def_surveydir)
 
 from SurveyFuncs import *
 
-es = Elasticsearch()
+els = Elasticsearch()
 mm_setup()
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
@@ -66,7 +66,7 @@ def genLoadJson(infile, es_index, run_date, country_code):
 def insert(infile, es_index, run_date, country_code):
     print("[{}] Starting...".format(datetime.datetime.utcnow()))
     (successful_actions, errors) = \
-        bulk(es, 
+        bulk(els, 
             genLoadJson(infile, es_index, run_date, country_code), 
             chunk_size=50, 
             request_timeout=30, 
@@ -77,12 +77,10 @@ def insert(infile, es_index, run_date, country_code):
             stats_only=True)
     print("[{}] Finished with {} successful actions ".format(datetime.datetime.now(), successful_actions))
 
-@es.command(context_settings=CONTEXT_SETTINGS)
+@elastic.command(context_settings=CONTEXT_SETTINGS)
 def viewAllIndices():
-    indices = es.indices(index='*',
-        bytes='m')
-    for index in indices:
-        out = ""
-        for col in index:
-            out += col + " "
-        print out
+    indices = els.cat.indices(index='*',
+        bytes='m',
+        v=True)
+
+    print(indices)

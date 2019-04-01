@@ -1,5 +1,6 @@
 from setuptools import setup
 
+# After change: pip install --editable .
 setup(
     name='esman',
     version='0.1',
@@ -17,5 +18,6 @@ setup(
         bulkinsert=bulkinsert:insert
         elasticsearch=es:elastic
         es=es:elastic
+        esman=esman:general
     ''',
 )
