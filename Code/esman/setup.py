@@ -15,7 +15,7 @@ setup(
     entry_points='''
         [console_scripts]
         bulkinsert=bulkinsert:insert
-        elasticsearch=es:es
-        es=es:es
+        elasticsearch=es:elastic
+        es=es:elastic
     ''',
 )

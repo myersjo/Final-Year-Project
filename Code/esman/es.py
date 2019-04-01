@@ -24,7 +24,7 @@ mm_setup()
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 @click.group()
-def es():
+def elastic():
     pass
 
 def genLoadJson(infile, es_index, run_date, country_code):
@@ -58,7 +58,7 @@ def genLoadJson(infile, es_index, run_date, country_code):
                 "doc": j_content
             }
 
-@es.command(context_settings=CONTEXT_SETTINGS)
+@elastic.command(context_settings=CONTEXT_SETTINGS)
 @click.option('-i', '--input', 'infile', required=True, help='JSON File to be inserted')
 @click.option('--index', 'es_index', required=True, prompt=True, help='Elasticsearch index to be inserted to')
 @click.option('-rd', '--rundate', 'run_date', type=click.DateTime(['%Y-%m-%d']), default=datetime.date.today().strftime('%Y-%m-%d'), help="Run date to be used for Kibana (YYYY-MM-DD)")
