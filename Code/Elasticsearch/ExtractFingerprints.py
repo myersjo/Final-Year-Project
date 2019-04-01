@@ -11,7 +11,7 @@ from dateutil import parser as dparser  # for parsing time from comand line and 
 import pytz # for adding back TZ info to allow comparisons
 
 from elasticsearch import Elasticsearch # install via "$ sudo pip install elasticsearch"
-from elasticsearch.helpers import scan
+from elasticsearch.helpers import scan, bulk
 es = Elasticsearch(timeout=60)
 
 
@@ -23,15 +23,44 @@ from SurveyFuncs import *
 
 # default values
 index="av-records-fresh-geo-ie-20180316"
+fp_index="av-fingerprints-20180316"
+UPDATE_ELASTICSEARCH=True # Used for testing - if False, data is retrieved from ES, but no inserts/updates are sent
 
 def timestampPrint(message):
     print('[{}] {} '.format(datetime.datetime.now(), message))
+
+def newFprintRec():
+    fprec={}
+    fprec['ip'] = ""
+    fprec['fprint'] = ""
+    fprec['run_date'] = ""
+    fprec['p22'] = 0
+    fprec['p25'] = 0
+    fprec['p110'] = 0
+    fprec['p143'] = 0
+    fprec['p443'] = 0
+    fprec['p587'] = 0
+    fprec['p993'] = 0
+    return fprec
+
+def toESDocs(fprecs, index):
+    docs=[]
+    for fp in fprecs:
+        doc={}
+        doc['_index']=index
+        doc['_type']="document"
+        doc['doc']=fprecs[fp]
+        docs.append(doc)
+    return docs
 
 # command line arg handling 
 argparser=argparse.ArgumentParser(description='Scan records for collisions')
 argparser.add_argument('-i','--input',     
                     dest='index',
                     help='Elasticsearch index containing list of IPs')
+argparser.add_argument('--fpindex',     
+                    dest='fp_index',
+                    help='Elasticsearch fingerprint index')
 argparser.add_argument('-p','--ports',     
                     dest='portstring',
                     help='comma-sep list of ports to scan')
@@ -64,6 +93,9 @@ if args.country is not None:
 
 if args.index is not None:
     index=args.index
+
+if args.fp_index is not None:
+    fp_index=args.fp_index
 
 # this is an array to hold the set of keys we find
 fingerprints=[]
@@ -99,12 +131,13 @@ else:
     # keep track of how long this is taking per ip
     peripaverage=0
 
-    # Disable refresh to stop reindexing until complete
-    es.indices.put_settings(index=index,
-        body={ "index.refresh_interval": -1 })
-    timestampPrint("Disabling ES refresh")
+    if UPDATE_ELASTICSEARCH:
+        # Disable refresh to stop reindexing until complete
+        es.indices.put_settings(index=index,
+            body={ "index.refresh_interval": -1 })
+        timestampPrint("Disabling ES refresh")
 
-    # Generator to get records from ES, 5 at a time
+    # Generator to get records from ES, 'size' at a time
     records = scan(es,
         query={"query": {"match_all": {}}},
         index=index,
@@ -357,12 +390,46 @@ else:
             # printOneFP(thisone)
             try:
                 # pass
-                es.update(index=docindex,
-                    doc_type="document",
-                    id=docid,
-                    body=encodedData,
-                    _source=False,
-                    refresh="false")
+                # seenfps=[]
+                # fprecs=[]
+                # for fprint in thisone.fprints:
+                #     if fprint['fprint'] in seenfps:
+                #         i = seenfps.index(fprint['fprint'])
+                #         port = fprint['port']
+                #         fprecs[i][port] = 1
+                #     else:
+                #         fprec = newFprintRec()
+                #         fprecs.append
+                fprecs={}
+                for fprint in thisone.fprints:
+                    fp = fprint['fprint']
+                    port = "p{}".format(fprint['port'])
+                    if fp not in fprecs:
+                        fprec = newFprintRec()
+                        fprec['run_date']=args.scandatestring
+                        fprec['fprint']=fp
+                        fprec['ip']=thisone.ip
+                        fprecs[fp] = fprec
+                    fprecs[fp][port] = 1
+
+                # for fp in fprecs:
+                #     print(fprecs[fp])
+
+                docs = toESDocs(fprecs, fp_index)
+
+                # for doc in docs:
+                #     print(doc)
+
+                if UPDATE_ELASTICSEARCH:
+                    es.update(index=docindex,
+                        doc_type="document",
+                        id=docid,
+                        body=encodedData,
+                        _source=False,
+                        refresh="false")
+                    
+                    bulk(es, docs)
+
             except Exception as e:
                 timestampPrint("ERROR: {}".format(e))
         else:
@@ -382,10 +449,11 @@ else:
         del j_content
         del thisone
     
-    # Enable refresh again 
-    es.indices.put_settings(index=index,
-        body={ "index.refresh_interval": "60s" })
-    timestampPrint("Enabling ES refresh")
+    if UPDATE_ELASTICSEARCH:
+        # Enable refresh again 
+        es.indices.put_settings(index=index,
+            body={ "index.refresh_interval": "60s" })
+        timestampPrint("Enabling ES refresh")
 
     gc.collect()
     
