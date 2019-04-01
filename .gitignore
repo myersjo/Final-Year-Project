@@ -253,3 +253,7 @@ TSWLatexianTemp*
 
 # standalone packages
 *.sta
+
+venv
+*.egg-info*
+*.pyc
