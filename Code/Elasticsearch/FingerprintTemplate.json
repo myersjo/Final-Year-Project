@@ -1,0 +1,31 @@
+{
+    "index_patterns": ["*fingerprints*"],
+    "order": 100,
+    "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0,
+      "refresh_interval": "60s",
+      "index.mapping.total_fields.limit": 5000
+    },
+    "mappings": {
+      "document": {
+        "_source": {
+          "enabled": true
+        },
+        "properties": {
+          "doc": {
+            "properties": {
+              "ip": {
+                "type": "ip"
+              },
+              "run_date": {
+                "type": "date",
+                "format": "yyyy-MM-dd"
+              }
+            }
+          }
+        }
+      }
+    },
+    "version": 1
+  }
