@@ -29,34 +29,37 @@ def elastic():
 
 def genLoadJson(infile, es_index, run_date, country_code):
     lines_read=0
+    res = subprocess.check_output(["sudo", "wc", "-l", infile])
+    num_lines = int(res.split(' ')[0])
     with open(infile,'r') as f:
-        for line in f:
-            status = subprocess.check_output(["sudo", "systemctl", "show", "-p", "SubState", "--value", "elasticsearch.service"])
-            if "running" not in status:
-                subprocess.call(["sudo", "systemctl", "start", "elasticsearch.service"])
-                print("[{}] {} lines read. Restarting failed Elasticsearch...".format(datetime.datetime.utcnow(), lines_read))
-                time.sleep(20)
-            if lines_read % 100 == 0:
-                print("[{}] {} lines read".format(datetime.datetime.now(), lines_read))
-                time.sleep(1)
-            j_content = json.loads(line)
-            ip = j_content['ip']
-            geoinfo = mm_info(ip)
-            # j_content['country_code']=geoinfo['cc']
-            j_content['country_code']=country_code
-            j_content['run_date']=run_date.strftime('%Y-%m-%d')
-            geolocation = { "location": { "lat": geoinfo['lat'], "lon": geoinfo['long']}}
-            j_content['geoip']=geolocation
-            j_content['asn']=geoinfo['asn']
-            j_content['asndec']=geoinfo['asndec']
+        with click.progressbar(f, length=num_lines) as bar:
+            for line in bar:
+                status = subprocess.check_output(["sudo", "systemctl", "show", "-p", "SubState", "--value", "elasticsearch.service"])
+                if "running" not in status:
+                    subprocess.call(["sudo", "systemctl", "start", "elasticsearch.service"])
+                    print("\n[{}] {} lines read. Restarting failed Elasticsearch...".format(datetime.datetime.utcnow(), lines_read))
+                    time.sleep(20)
+                if lines_read % 100 == 0:
+                    print("\n[{}] {} lines read".format(datetime.datetime.now(), lines_read))
+                    time.sleep(1)
+                j_content = json.loads(line)
+                ip = j_content['ip']
+                geoinfo = mm_info(ip)
+                # j_content['country_code']=geoinfo['cc']
+                j_content['country_code']=country_code
+                j_content['run_date']=run_date.strftime('%Y-%m-%d')
+                geolocation = { "location": { "lat": geoinfo['lat'], "lon": geoinfo['long']}}
+                j_content['geoip']=geolocation
+                j_content['asn']=geoinfo['asn']
+                j_content['asndec']=geoinfo['asndec']
 
-            lines_read += 1
-            time.sleep(0.5)
-            yield {
-                "_index": es_index,
-                "_type": "document",
-                "doc": j_content
-            }
+                lines_read += 1
+                time.sleep(0.5)
+                yield {
+                    "_index": es_index,
+                    "_type": "document",
+                    "doc": j_content
+                }
 
 @elastic.command(context_settings=CONTEXT_SETTINGS)
 @click.option('-i', '--input', 'infile', required=True, help='JSON File to be inserted')
@@ -84,3 +87,14 @@ def viewAllIndices():
         v=True)
 
     print(indices)
+
+
+@elastic.command(context_settings=CONTEXT_SETTINGS)
+@click.option('-i', '--index', 'index', required=True, prompt=True)
+@click.confirmation_option()
+def deleteIndex(index):
+    try:
+        els.indices.delete(index=index)
+        click.echo('{} deleted'.format(index))
+    except:
+        click.echo('There was a problem deleting index {}'.format(index))
