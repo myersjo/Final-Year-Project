@@ -3,6 +3,7 @@ import argparse
 import csv
 import time,datetime
 import json
+import subprocess
 from Common import *
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
@@ -79,11 +80,12 @@ def extractData(csv_infile,json_infile,outfile,col,try_ip, debug):
 @click.option('-j','--jsoninfile','json_infile',required=True,help='JSON file containing list of scan records')
 @click.option('-o','--output_file','outfile',required=True,help='JSON file in which to put records (one per line)')
 @click.option('--col','col',default=1,help='Column from input file that has the URL (default = 1)')
-@click.option('--tryip','try_ip',is_flag=True)
-@click.option('--debug','debug',is_flag=True)
+@click.option('--tryip','try_ip',is_flag=True,help="If set, searches json_infile for IP if no records match domain")
+@click.option('--debug','debug',is_flag=True,help="If set, turns on verbose logging")
 def extractSubset(csv_infile,json_infile,outfile,col,try_ip, debug):
     extractData(csv_infile,json_infile,outfile,col,try_ip, debug)
 
 @general.command(context_settings=CONTEXT_SETTINGS)
 def installDeps():
     timestampPrint('Installing dependencies')
+    subprocess.call("../install.sh", shell=True)

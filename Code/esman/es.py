@@ -92,7 +92,7 @@ def viewAllIndices():
 
 
 @elastic.command(context_settings=CONTEXT_SETTINGS)
-@click.option('-i', '--index', 'index', required=True, prompt=True)
+@click.option('-i', '--index', 'index', required=True, prompt=True,help="Name of the index to delete")
 @click.confirmation_option()
 def deleteIndex(index):
     try:
