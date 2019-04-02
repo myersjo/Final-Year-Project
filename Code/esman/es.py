@@ -17,6 +17,7 @@ def_surveydir=os.environ['HOME']+'/code/surveys'
 sys.path.insert(0,def_surveydir)
 
 from SurveyFuncs import *
+from Common import *
 
 els = Elasticsearch()
 mm_setup()
