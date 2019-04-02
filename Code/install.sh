@@ -36,4 +36,5 @@ sudo /bin/systemctl enable kibana.service
 
 # Set up defaults
 curl -X PUT "localhost:9200/_template/default_template" -H 'Content-Type: application/json' -d @Elasticsearch/DefaultIndexTemplate.json
+curl -X PUT "localhost:9200/_template/default_template" -H 'Content-Type: application/json' -d @Elasticsearch/RecordsFreshTemplate.json
 curl -X PUT "localhost:9200/_template/fingerprint_template" -H 'Content-Type: application/json' -d @Elasticsearch/FingerprintTemplate.json
