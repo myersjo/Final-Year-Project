@@ -29,8 +29,9 @@ def elastic():
 
 def genLoadJson(infile, es_index, run_date, country_code):
     lines_read=0
-    res = subprocess.check_output(["sudo", "wc", "-l", infile])
-    num_lines = int(res.split(' ')[0])
+    # res = subprocess.check_output(["sudo", "wc", "-l", infile])
+    # num_lines = int(res.split(' ')[0])
+    num_lines = getNumLines(infile)
     with open(infile,'r') as f:
         with click.progressbar(f, length=num_lines) as bar:
             for line in bar:
