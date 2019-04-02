@@ -66,9 +66,10 @@ def genLoadJson(infile, es_index, run_date, country_code):
 @elastic.command(context_settings=CONTEXT_SETTINGS)
 @click.option('-i', '--input', 'infile', required=True, help='JSON File to be inserted')
 @click.option('--index', 'es_index', required=True, prompt=True, help='Elasticsearch index to be inserted to')
-@click.option('-rd', '--rundate', 'run_date', type=click.DateTime(['%Y-%m-%d']), default=datetime.date.today().strftime('%Y-%m-%d'), help="Run date to be used for Kibana (YYYY-MM-DD)")
+@click.option('-rd', '--rundate', 'run_date', type=click.DateTime(['%Y-%m-%d']), default=datetime.date.today().strftime('%Y-%m-%d'), help="Run date to be used for Kibana",metavar="<YYYY-MM-DD>")
 @click.option('-cc','--countrycode', 'country_code', default="IE", help='Two letter country code to be used for Kibana')
 def insert(infile, es_index, run_date, country_code):
+    """Insert JSON Data to Elasticsearch"""
     print("[{}] Starting...".format(datetime.datetime.utcnow()))
     (successful_actions, errors) = \
         bulk(els, 
@@ -84,6 +85,7 @@ def insert(infile, es_index, run_date, country_code):
 
 @elastic.command(context_settings=CONTEXT_SETTINGS)
 def viewAllIndices():
+    """View all Elasticsearch indices and their status"""
     indices = els.cat.indices(index='*',
         bytes='m',
         v=True)
@@ -95,6 +97,7 @@ def viewAllIndices():
 @click.option('-i', '--index', 'index', required=True, prompt=True,help="Name of the index to delete")
 @click.confirmation_option()
 def deleteIndex(index):
+    """Delete an Elasticsearch index. WARNING: Cannot be undone"""
     try:
         els.indices.delete(index=index)
         click.echo('{} deleted'.format(index))

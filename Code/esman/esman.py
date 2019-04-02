@@ -83,9 +83,11 @@ def extractData(csv_infile,json_infile,outfile,col,try_ip, debug):
 @click.option('--tryip','try_ip',is_flag=True,help="If set, searches json_infile for IP if no records match domain")
 @click.option('--debug','debug',is_flag=True,help="If set, turns on verbose logging")
 def extractSubset(csv_infile,json_infile,outfile,col,try_ip, debug):
+    """Read a CSV file, one (default second) column of which is a URL, then extract matching records from a JSON file"""
     extractData(csv_infile,json_infile,outfile,col,try_ip, debug)
 
 @general.command(context_settings=CONTEXT_SETTINGS)
 def installDeps():
+    """Install Elasticsearch and Kibana, enable auto-start and create Elasticsearch templates"""
     timestampPrint('Installing dependencies')
     subprocess.call("../install.sh", shell=True)
