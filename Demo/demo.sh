@@ -141,3 +141,39 @@ GET av-records-fresh-geo-ie*/_search
     }
   }
 }
+
+# Search for cipher suites, group records by IP and show cipher suite across runs for each IP
+GET records-fresh-geo-ie-*/_search
+{
+  "query": {
+    "terms": {
+      "doc.p443.data.http.response.request.tls_handshake.server_hello.cipher_suite.name.keyword": [
+        "TLS_RSA_WITH_RC4_128_SHA",
+        "TLS_ECDHE_RSA_WITH_RC4_128_SHA"
+      ]
+    }
+  },
+  "aggs": {
+    "groupby-ip": {
+      "terms": {
+        "field": "doc.ip",
+        "size": 100,
+        "min_doc_count": 2
+      },
+      "aggs": {
+        "results": {
+          "top_hits": {
+            "size": 10,
+            "_source": ["doc.ip", "doc.p443.data.http.response.request.tls_handshake.server_hello.cipher_suite.name", "doc.run_date"]
+          }
+        }
+      }
+    }
+  },
+  "_source": ["doc.ip", "doc.p443.data.http.response.request.tls_handshake.server_hello.cipher_suite.name.keyword", "doc.run_date"],
+  "size": 0
+}
+
+
+
+doc.p443.data.http.redirect_response_chain.request.tls_handshake.server_certificates.certificate.parsed.subject_key_info.fingerprint_sha256.keyword
