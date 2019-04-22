@@ -1,0 +1,45 @@
+{
+  "index_patterns": ["*records-fresh*"],
+  "order": 100,
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 0,
+    "refresh_interval": "60s",
+    "index.mapping.total_fields.limit": 5000
+  },
+  "mappings": {
+    "document": {
+      "_source": {
+        "enabled": true
+      },
+      "properties": {
+        "doc": {
+          "properties": {
+            "ip": {
+              "type": "ip"
+            },
+            "geoip": {
+              "properties": {
+                "location": {
+                  "type": "geo_point"
+                }
+              }
+            },
+            "run_date": {
+              "type": "date",
+              "format": "yyyy-MM-dd"
+            }
+          }
+        },
+        "fingerprints": {
+          "properties": {
+            "fprints": {
+              "type": "nested"
+            }
+          }
+        }
+      }
+    }
+  },
+  "version": 2
+}
